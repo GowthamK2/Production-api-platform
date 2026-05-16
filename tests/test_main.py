@@ -61,4 +61,4 @@ def test_create_product():
     assert response.status_code == 200
     data = response.json()
     assert data["message"] == "Product Created"
-    assert data["data"]["name"] == "Laptop" 
+    assert data["data"]["name"] == "Laptop"
