@@ -59,7 +59,7 @@ def create_user(user: User):
 @app.post("/products")
 def create_product(product: Product):
 
-    products_db.append(product.dict())
+    products_db.append(product.model_dump())
 
     return {
         "message": "Product added",
@@ -96,7 +96,7 @@ def get_product(product_id: int):
 @app.put("/products/{product_id}")
 def update_product(product_id: int, product: Product):
 
-    products_db[product_id] = product.dict()
+    products_db[product_id] = product.model_dump()
 
     return {
         "message": "Product updated",
