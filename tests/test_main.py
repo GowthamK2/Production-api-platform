@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+
 from app.main import app
 
 client = TestClient(app)
@@ -20,30 +21,6 @@ def test_home():
 
 
 # -----------------------------
-# CREATE USER TEST
-# -----------------------------
-
-def test_create_user():
-
-    response = client.post(
-        "/users",
-        json={
-            "name": "Gowtham",
-            "age": 24,
-            "skills": ["Python", "FastAPI"]
-        }
-    )
-
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert data["message"] == "User created"
-
-    assert data["data"]["name"] == "Gowtham"
-
-
-# -----------------------------
 # CREATE PRODUCT TEST
 # -----------------------------
 
@@ -53,8 +30,9 @@ def test_create_product():
         "/products",
         json={
             "name": "Laptop",
-            "price": 59999,
-            "stock": 5
+            "price": 50000,
+            "stock": 10,
+            "description": "Gaming laptop"
         }
     )
 
@@ -107,8 +85,9 @@ def test_update_product():
         "/products/0",
         json={
             "name": "Gaming Laptop",
-            "price": 89999,
-            "stock": 3
+            "price": 90000,
+            "stock": 5,
+            "description": "RTX gaming laptop"
         }
     )
 
@@ -125,7 +104,17 @@ def test_update_product():
 
 def test_delete_product():
 
-    response = client.delete("/products/0")
+    client.post(
+        "/products",
+        json={
+            "name": "Mouse",
+            "price": 1000,
+            "stock": 5,
+            "description": "Wireless mouse"
+        }
+    )
+
+    response = client.delete("/products/1")
 
     assert response.status_code == 200
 
@@ -143,10 +132,21 @@ def test_invalid_product():
     response = client.post(
         "/products",
         json={
-            "name": 123,
-            "price": "wrong",
-            "stock": "abc"
+            "name": "A",
+            "price": -100,
+            "stock": -5
         }
     )
 
     assert response.status_code == 422
+
+
+# -----------------------------
+# INVALID PRODUCT ID TEST
+# -----------------------------
+
+def test_invalid_product_id():
+
+    response = client.get("/products/100")
+
+    assert response.status_code == 404
