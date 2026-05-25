@@ -3,6 +3,14 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
+from app.services import (
+    get_all_products,
+    get_single_product,
+    create_new_product,
+    update_existing_product,
+    delete_existing_product
+)
+
 app = FastAPI()
 
 
@@ -25,13 +33,6 @@ class Product(BaseModel):
 
 
 # -----------------------------
-# FAKE DATABASE
-# -----------------------------
-
-products_db = []
-
-
-# -----------------------------
 # HOME ROUTE
 # -----------------------------
 
@@ -50,8 +51,10 @@ def home():
 @app.get("/products")
 def get_products():
 
+    products = get_all_products()
+
     return {
-        "products": products_db
+        "products": products
     }
 
 
@@ -62,14 +65,16 @@ def get_products():
 @app.get("/products/{product_id}")
 def get_product(product_id: int):
 
-    if product_id >= len(products_db):
+    product = get_single_product(product_id)
+
+    if product is None:
 
         raise HTTPException(
             status_code=404,
             detail="Product not found"
         )
 
-    return products_db[product_id]
+    return product
 
 
 # -----------------------------
@@ -79,11 +84,11 @@ def get_product(product_id: int):
 @app.post("/products")
 def create_product(product: Product):
 
-    products_db.append(product.model_dump())
+    created_product = create_new_product(product)
 
     return {
         "message": "Product added",
-        "data": product
+        "data": created_product
     }
 
 
@@ -94,18 +99,21 @@ def create_product(product: Product):
 @app.put("/products/{product_id}")
 def update_product(product_id: int, product: Product):
 
-    if product_id >= len(products_db):
+    updated_product = update_existing_product(
+        product_id,
+        product
+    )
+
+    if updated_product is None:
 
         raise HTTPException(
             status_code=404,
             detail="Product not found"
         )
 
-    products_db[product_id] = product.model_dump()
-
     return {
         "message": "Product updated",
-        "data": product
+        "data": updated_product
     }
 
 
@@ -116,14 +124,14 @@ def update_product(product_id: int, product: Product):
 @app.delete("/products/{product_id}")
 def delete_product(product_id: int):
 
-    if product_id >= len(products_db):
+    deleted_product = delete_existing_product(product_id)
+
+    if deleted_product is None:
 
         raise HTTPException(
             status_code=404,
             detail="Product not found"
         )
-
-    deleted_product = products_db.pop(product_id)
 
     return {
         "message": "Product deleted",
