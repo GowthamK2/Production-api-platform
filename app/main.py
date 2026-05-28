@@ -1,35 +1,42 @@
-from typing import Optional
+from app.services import get_products_service
+from app.services import get_product_service
+from app.services import create_product_service
+from app.services import delete_product_service
+from app.schemas import ProductResponse 
+from fastapi import FastAPI
+from fastapi import HTTPException
+from fastapi import Depends
 
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
-from app.services import (
-    get_all_products,
-    get_single_product,
-    create_new_product,
-    update_existing_product,
-    delete_existing_product
-)
+from app.database import SessionLocal
+from app.database import engine
+from app.database import Base
+
+from app.models import Product
+
+from app.schemas import ProductCreate
+from app.schemas import ProductResponse
+
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
 
 # -----------------------------
-# PRODUCT MODEL
+# DATABASE SESSION
 # -----------------------------
 
-class Product(BaseModel):
+def get_db():
 
-    name: str = Field(
-        min_length=3,
-        max_length=50
-    )
+    db = SessionLocal()
 
-    price: float = Field(gt=0)
+    try:
+        yield db
 
-    stock: int = Field(ge=0)
-
-    description: Optional[str] = None
+    finally:
+        db.close()
 
 
 # -----------------------------
@@ -43,29 +50,46 @@ def home():
         "message": "Production API Platform Running"
     }
 
+@app.post("/products", response_model=ProductResponse)
+
+def create_product(
+    product: ProductCreate,
+    db: Session = Depends(get_db)
+):
+
+    return create_product_service(
+        db,
+        product
+    )
 
 # -----------------------------
 # GET ALL PRODUCTS
 # -----------------------------
 
-@app.get("/products")
-def get_products():
+@app.get("/products", response_model=list[ProductResponse])
 
-    products = get_all_products()
+def get_products(
+    db: Session = Depends(get_db)
+):
 
-    return {
-        "products": products
-    }
+    return get_products_service(db)
 
 
 # -----------------------------
 # GET SINGLE PRODUCT
 # -----------------------------
 
-@app.get("/products/{product_id}")
-def get_product(product_id: int):
+@app.get("/products/{product_id}", response_model=ProductResponse)
 
-    product = get_single_product(product_id)
+def get_product(
+    product_id: int,
+    db: Session = Depends(get_db)
+):
+
+    product = get_product_service(
+        db,
+        product_id
+    )
 
     if product is None:
 
@@ -76,44 +100,40 @@ def get_product(product_id: int):
 
     return product
 
-
-# -----------------------------
-# CREATE PRODUCT
-# -----------------------------
-
-@app.post("/products")
-def create_product(product: Product):
-
-    created_product = create_new_product(product)
-
-    return {
-        "message": "Product added",
-        "data": created_product
-    }
-
-
 # -----------------------------
 # UPDATE PRODUCT
 # -----------------------------
 
 @app.put("/products/{product_id}")
-def update_product(product_id: int, product: Product):
 
-    updated_product = update_existing_product(
-        product_id,
-        product
-    )
+def update_product(
+    product_id: int,
+    updated_product: ProductCreate,
+    db: Session = Depends(get_db)
+):
 
-    if updated_product is None:
+    product = db.query(Product).filter(
+        Product.id == product_id
+    ).first()
+
+    if product is None:
 
         raise HTTPException(
             status_code=404,
             detail="Product not found"
         )
 
+    product.name = updated_product.name
+    product.price = updated_product.price
+    product.stock = updated_product.stock
+
+    db.commit()
+
+    db.refresh(product)
+
     return {
         "message": "Product updated",
-        "data": updated_product
+        "data": product
     }
 
 
@@ -122,11 +142,18 @@ def update_product(product_id: int, product: Product):
 # -----------------------------
 
 @app.delete("/products/{product_id}")
-def delete_product(product_id: int):
 
-    deleted_product = delete_existing_product(product_id)
+def delete_product(
+    product_id: int,
+    db: Session = Depends(get_db)
+):
 
-    if deleted_product is None:
+    deleted = delete_product_service(
+        db,
+        product_id
+    )
+
+    if deleted is None:
 
         raise HTTPException(
             status_code=404,
@@ -134,6 +161,5 @@ def delete_product(product_id: int):
         )
 
     return {
-        "message": "Product deleted",
-        "data": deleted_product
+        "message": "Product deleted"
     }

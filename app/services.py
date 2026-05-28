@@ -1,62 +1,59 @@
-products_db = []
+from sqlalchemy.orm import Session
+
+from app.models import Product
+from app.schemas import ProductCreate
 
 
-# -----------------------------
-# GET ALL PRODUCTS
-# -----------------------------
+def create_product_service(
+    db: Session,
+    product: ProductCreate
+):
 
-def get_all_products():
+    new_product = Product(
 
-    return products_db
+        name=product.name,
+        price=product.price,
+        stock=product.stock
+    )
 
+    db.add(new_product)
 
-# -----------------------------
-# GET SINGLE PRODUCT
-# -----------------------------
+    db.commit()
 
-def get_single_product(product_id):
+    db.refresh(new_product)
 
-    if product_id >= len(products_db):
+    return new_product
 
-        return None
+def get_products_service(
+    db: Session
+):
 
-    return products_db[product_id]
+    return db.query(Product).all()
 
+def get_product_service(
+    db: Session,
+    product_id: int
+):
 
-# -----------------------------
-# CREATE PRODUCT
-# -----------------------------
+    return db.query(Product).filter(
+        Product.id == product_id
+    ).first()
 
-def create_new_product(product):
+def delete_product_service(
+    db: Session,
+    product_id: int
+):
 
-    products_db.append(product.model_dump())
+    product = db.query(Product).filter(
+        Product.id == product_id
+    ).first()
 
-    return product
-
-
-# -----------------------------
-# UPDATE PRODUCT
-# -----------------------------
-
-def update_existing_product(product_id, product):
-
-    if product_id >= len(products_db):
-
-        return None
-
-    products_db[product_id] = product.model_dump()
-
-    return product
-
-
-# -----------------------------
-# DELETE PRODUCT
-# -----------------------------
-
-def delete_existing_product(product_id):
-
-    if product_id >= len(products_db):
+    if product is None:
 
         return None
 
-    return products_db.pop(product_id)
+    db.delete(product)
+
+    db.commit()
+
+    return True
