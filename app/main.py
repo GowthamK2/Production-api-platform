@@ -7,6 +7,11 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi import Depends
 
+from fastapi.middleware.cors import CORSMiddleware
+
+import time
+
+
 from sqlalchemy.orm import Session
 
 from fastapi.security import OAuth2PasswordBearer
@@ -31,10 +36,39 @@ from app.services import login_user
 from app.security import verify_password
 from app.security import create_access_token
 
+import logging
+
+logging.basicConfig(
+    level=logging.INFO 
+)
+
+logger = logging.getLogger(__name__)
+
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+@app.middleware("http")
+async def log_requests(request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+
+    logger.info(
+        f"{request.method} {request.url.path} "
+        f"took {process_time:.4f} seconds"
+    )
+
+    return response
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="token"

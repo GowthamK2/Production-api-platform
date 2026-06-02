@@ -9,6 +9,10 @@ from app.security import hash_password
 from app.security import verify_password
 from app.security import create_access_token 
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 def create_product_service(
     db: Session,
     product: ProductCreate
@@ -81,6 +85,10 @@ def create_user(user, db):
 
     db.refresh(new_user)
 
+    logger.info(
+        f"User Registered: {user.username}"
+    )
+
     return {
         "message": "User registered successfully"
     }
@@ -104,6 +112,9 @@ def login_user(user, db):
         {
             "sub": db_user.username
         }
+    )
+    logger.info(
+        f"User Logged in: {db_user.username}"
     )
     return {
         "access_token": token,
