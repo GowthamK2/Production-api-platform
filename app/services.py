@@ -9,29 +9,19 @@ from app.security import hash_password
 from app.security import verify_password
 from app.security import create_access_token 
 
+from app.repositories.product_repository import create_product
+
 import logging
 
 logger = logging.getLogger(__name__)
 
 def create_product_service(
-    db: Session,
-    product: ProductCreate
+    db,
+    product
 ):
+    return create_product(db, product)
 
-    new_product = Product(
-
-        name=product.name,
-        price=product.price,
-        stock=product.stock
-    )
-
-    db.add(new_product)
-
-    db.commit()
-
-    db.refresh(new_product)
-
-    return new_product
+    
 
 def get_products_service(
     db: Session

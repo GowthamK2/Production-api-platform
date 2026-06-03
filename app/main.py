@@ -80,7 +80,7 @@ oauth2_scheme = OAuth2PasswordBearer(
 # -----------------------------
 
 @app.get("/")
-def home():
+async def home():
 
     return {
         "message": "Production API Platform Running"
@@ -104,7 +104,7 @@ def create_product(
 
 @app.get("/products", response_model=list[ProductResponse])
 
-def get_products(
+async def get_products(
     db: Session = Depends(get_db)
 ):
 
