@@ -31,14 +31,14 @@ class User(Base):
     username = Column(
         String,
         unique=True,
-        nullable=False
+        nullable=False, 
         index=True
     )
 
     email = Column(
         String,
         unique=True,
-        nullable=False
+        nullable=False,
         index=True
     )
 
@@ -46,5 +46,3 @@ class User(Base):
         String,
         nullable=False
     )
-
-

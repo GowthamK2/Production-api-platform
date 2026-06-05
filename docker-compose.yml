@@ -1,0 +1,37 @@
+services:
+
+  db:
+    image: postgres:17
+    container_name: postgres_db
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Krish@24
+      POSTGRES_DB: production_api_platform
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: production_api
+
+    depends_on:
+      - db
+
+    ports:
+      - "8000:8000"
+
+    environment:
+      DATABASE_URL: postgresql://postgres:Krish%4024@db:5432/production_api_platform
+      SECRET_KEY: mysecretkey123
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+
+volumes:
+  postgres_data:
+
+ 
