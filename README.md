@@ -1,53 +1,91 @@
-# 🚀 Production API Platform
+# Production API Platform
 
-A production-ready REST API built with FastAPI, PostgreSQL, SQLAlchemy, JWT Authentication, Docker, and Docker Compose.
+A production-ready REST API built with FastAPI, PostgreSQL, JWT Authentication, Docker, and deployed on Render.
 
-## 📌 Overview
+## Live Demo
 
-Production API Platform is a backend service that demonstrates modern backend engineering practices including:
+**Production URL**
 
-* User Authentication with JWT
-* OAuth2 Authorization
-* Product Management APIs
-* PostgreSQL Database Integration
-* Repository Pattern Architecture
-* Logging & Middleware
-* Environment Variable Management
-* Docker Containerization
-* Docker Compose Orchestration
+https://production-api-platform.onrender.com
+
+**Swagger Documentation**
+
+https://production-api-platform.onrender.com/docs
 
 ---
 
-## 🛠️ Tech Stack
+## Project Overview
+
+This project demonstrates how to build, containerize, and deploy a production-grade backend application.
+
+The API provides:
+
+* User Registration
+* User Login
+* JWT Authentication
+* Protected Routes
+* Product Management APIs
+* PostgreSQL Database Integration
+* Dockerized Deployment
+* Cloud Deployment using Render
+
+---
+
+## Features
+
+### Authentication
+
+* User Registration
+* User Login
+* JWT Token Generation
+* OAuth2 Password Flow
+* Protected Endpoints
+
+### Products
+
+* Fetch Product Details
+* Database-backed Product Storage
+
+### Infrastructure
+
+* Docker Containerization
+* Docker Compose Setup
+* PostgreSQL Database
+* Environment Variable Configuration
+* Cloud Deployment
+
+---
+
+## Tech Stack
 
 ### Backend
 
-* Python
 * FastAPI
+* Python 3.13
 * SQLAlchemy
 * Pydantic
+
+### Authentication
+
+* JWT
+* OAuth2
+* Passlib (bcrypt)
 
 ### Database
 
 * PostgreSQL
-
-### Authentication
-
-* JWT (JSON Web Tokens)
-* OAuth2 Password Flow
+* Neon PostgreSQL (Cloud)
 
 ### DevOps
 
 * Docker
 * Docker Compose
-
-### Testing
-
-* Pytest
+* GitHub
+* Render
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 production-api-platform/
@@ -59,65 +97,132 @@ production-api-platform/
 │   ├── schemas.py
 │   ├── services.py
 │   ├── security.py
+│   │
 │   └── repositories/
+│       ├── user_repository.py
+│       └── product_repository.py
 │
 ├── tests/
 │
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
+├── .dockerignore
 ├── .env
+│
 └── README.md
 ```
 
 ---
 
-## ✨ Features
+## Architecture
+
+```text
+Client
+   │
+   ▼
+FastAPI Routes
+   │
+   ▼
+Service Layer
+   │
+   ▼
+Repository Layer
+   │
+   ▼
+SQLAlchemy ORM
+   │
+   ▼
+PostgreSQL Database
+```
+
+---
+
+## API Endpoints
 
 ### Authentication
 
-* User Registration
-* User Login
-* JWT Token Generation
-* Protected Endpoints
-* OAuth2 Integration
+| Method | Endpoint  | Description              |
+| ------ | --------- | ------------------------ |
+| POST   | /register | Register a new user      |
+| POST   | /login    | Login user               |
+| POST   | /token    | Generate JWT Token       |
+| GET    | /profile  | Get current user profile |
 
-### Product Management
+### Products
 
-* Create Product
-* Get Products
-* Get Product By ID
-* Delete Product
-
-### Production Features
-
-* Logging Middleware
-* Request Timing Middleware
-* Environment Variables
-* Repository Pattern
-* Async Endpoints
+| Method | Endpoint  | Description      |
+| ------ | --------- | ---------------- |
+| GET    | /products | Get all products |
 
 ---
 
-## 🐳 Running with Docker
+## Local Setup
 
-### Build & Start
+### Clone Repository
 
 ```bash
-docker compose up --build
+git clone https://github.com/GowthamK2/Production-api-platform.git
+cd Production-api-platform
 ```
 
-### Stop
+### Create Virtual Environment
 
 ```bash
-docker compose down
+python -m venv venv
+```
+
+### Activate Virtual Environment
+
+Windows
+
+```bash
+venv\Scripts\activate
+```
+
+Linux / Mac
+
+```bash
+source venv/bin/activate
+```
+
+### Install Dependencies
+
+```bash
+pip install -r requirements.txt
 ```
 
 ---
 
-## 📖 API Documentation
+## Environment Variables
 
-Swagger UI:
+Create a `.env` file:
+
+```env
+DATABASE_URL=postgresql://username:password@localhost/db_name
+
+SECRET_KEY=your_secret_key
+
+ALGORITHM=HS256
+
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
+
+---
+
+## Run Locally
+
+```bash
+uvicorn app.main:app --reload
+```
+
+Application:
+
+```text
+http://localhost:8000
+```
+
+Swagger Docs:
 
 ```text
 http://localhost:8000/docs
@@ -125,17 +230,57 @@ http://localhost:8000/docs
 
 ---
 
-## 🔐 Authentication Flow
+## Docker Setup
 
-1. Register User
-2. Login User
-3. Receive JWT Token
-4. Authorize in Swagger
-5. Access Protected Routes
+### Build Image
+
+```bash
+docker build -t production-api-platform .
+```
+
+### Run Container
+
+```bash
+docker run -p 8000:8000 production-api-platform
+```
 
 ---
 
-## 🧪 Running Tests
+## Docker Compose
+
+### Start Services
+
+```bash
+docker compose up --build
+```
+
+### Stop Services
+
+```bash
+docker compose down
+```
+
+---
+
+## Deployment
+
+### Render
+
+Application deployed using:
+
+* Render Web Service
+* Docker Runtime
+* Neon PostgreSQL Database
+
+Live URL:
+
+https://production-api-platform.onrender.com
+
+---
+
+## Testing
+
+Run tests:
 
 ```bash
 pytest
@@ -143,24 +288,21 @@ pytest
 
 ---
 
-## 🎯 Learning Outcomes
+## Future Improvements
 
-This project demonstrates:
-
-* REST API Development
-* Database Design
-* JWT Authentication
-* OAuth2 Authorization
-* Repository Pattern
-* Docker & Docker Compose
-* Backend Project Structure
-* Production-Ready API Practices
+* CI/CD using GitHub Actions
+* Product CRUD Operations
+* Role Based Access Control (RBAC)
+* Redis Caching
+* Rate Limiting
+* Monitoring & Logging
+* Kubernetes Deployment
 
 ---
 
-## 👨‍💻 Author
+## Author
 
-Gowtham K
+**Gowtham K**
 
 GitHub:
 https://github.com/GowthamK2
