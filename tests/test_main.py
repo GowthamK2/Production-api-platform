@@ -40,10 +40,9 @@ def test_create_product():
 
     data = response.json()
 
-    assert data["message"] == "Product added"
-
-    assert data["data"]["name"] == "Laptop"
-
+    assert data["name"] == "Laptop"
+    assert data["price"] == 50000
+    assert data["stock"] == 10
 
 # -----------------------------
 # GET ALL PRODUCTS TEST
@@ -57,7 +56,7 @@ def test_get_products():
 
     data = response.json()
 
-    assert "products" in data
+    assert isinstance(data, list)
 
 
 # -----------------------------
@@ -66,13 +65,27 @@ def test_get_products():
 
 def test_get_single_product():
 
-    response = client.get("/products/0")
+    create_response = client.post(
+        "/products",
+        json={
+            "name": "Monitor",
+            "price": 10000,
+            "stock": 5,
+            "description": "Gaming Monitor"
+        }
+    )
+
+    product_id = create_response.json()["id"]
+
+    response = client.get(
+        f"/products/{product_id}"
+    )
 
     assert response.status_code == 200
 
     data = response.json()
 
-    assert data["name"] == "Laptop"
+    assert data["name"] == "Monitor"
 
 
 # -----------------------------
@@ -81,13 +94,25 @@ def test_get_single_product():
 
 def test_update_product():
 
-    response = client.put(
-        "/products/0",
+    create_response = client.post(
+        "/products",
         json={
-            "name": "Gaming Laptop",
-            "price": 90000,
+            "name": "Tablet",
+            "price": 20000,
+            "stock": 7,
+            "description": "Android tablet"
+        }
+    )
+
+    product_id = create_response.json()["id"]
+
+    response = client.put(
+        f"/products/{product_id}",
+        json={
+            "name": "Gaming Tablet",
+            "price": 25000,
             "stock": 5,
-            "description": "RTX gaming laptop"
+            "description": "Gaming tablet"
         }
     )
 
@@ -104,7 +129,7 @@ def test_update_product():
 
 def test_delete_product():
 
-    client.post(
+    create_response = client.post(
         "/products",
         json={
             "name": "Mouse",
@@ -114,14 +139,17 @@ def test_delete_product():
         }
     )
 
-    response = client.delete("/products/1")
+    product_id = create_response.json()["id"]
+
+    response = client.delete(
+        f"/products/{product_id}"
+    )
 
     assert response.status_code == 200
 
     data = response.json()
 
     assert data["message"] == "Product deleted"
-
 
 # -----------------------------
 # INVALID PRODUCT TEST
