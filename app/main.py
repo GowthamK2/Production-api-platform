@@ -44,11 +44,13 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+
+
+app = FastAPI()
+
 @app.on_event("startup")
 def startup():
     Base.metadata.create_all(bind=engine)
-
-app = FastAPI()
 
 @app.middleware("http")
 async def log_requests(request, call_next):
