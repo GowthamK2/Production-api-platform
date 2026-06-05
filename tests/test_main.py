@@ -1,8 +1,13 @@
 from fastapi.testclient import TestClient
-
 from app.main import app
 
 client = TestClient(app)
+
+# Force table creation for CI
+from app.database import Base, engine
+from app.models import Product, User
+
+Base.metadata.create_all(bind=engine)
 
 
 # -----------------------------
