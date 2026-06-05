@@ -1,5 +1,10 @@
 from pydantic import BaseModel
 from pydantic import Field
+from pydantic import ConfigDict
+
+model_config = ConfigDict(
+    from_attributes=True
+)
 
 
 class ProductCreate(BaseModel):

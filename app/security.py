@@ -1,9 +1,8 @@
 from passlib.context import CryptContext
 
 from jose import jwt
+from datetime import datetime, timedelta, UTC
 
-from datetime import datetime
-from datetime import timedelta
 
 from jose import JWTError
 from fastapi import HTTPException
@@ -40,7 +39,7 @@ def create_access_token(data: dict):
     
     to_encode = data.copy()
 
-    expire = datetime.utcnow() + timedelta(
+    expire = datetime.now(UTC) + timedelta(
         minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
