@@ -1,6 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from fastapi import HTTPException
+
+from app.exception_handlers import (
+    http_exception_handler
+)
+
 import time
 import logging
 
@@ -14,6 +20,11 @@ level=logging.INFO
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+
+app.add_exception_handler(
+    HTTPException,
+    http_exception_handler
+)
 
 @app.middleware("http")
 async def log_requests(request, call_next):

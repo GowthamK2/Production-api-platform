@@ -1,5 +1,7 @@
 from fastapi.testclient import TestClient
 
+import uuid
+
 from app.main import app
 
 client = TestClient(app)
@@ -60,3 +62,20 @@ def test_profile_without_token():
     response = client.get("/profile")
 
     assert response.status_code == 401
+
+
+
+def test_register_user():
+
+    unique_id = str(uuid.uuid4())[:8]
+
+    response = client.post(
+        "/register",
+        json={
+            "username": f"testuser_{unique_id}",
+            "email": f"test_{unique_id}@example.com",
+            "password": "password123"
+        }
+    )
+
+    assert response.status_code == 200
